@@ -468,7 +468,7 @@ const (
 // the offset vector (ovector).
 const (
 	ZERO_TERMINATED = C.PCRE2_ZERO_TERMINATED
-	UNSET           = C.PCRE2_UNSET
+	UNSET C.PCRE2_SIZE = C.PCRE2_UNSET
 )
 
 // Constants used to determine the right size of the matchData structure
@@ -892,7 +892,10 @@ func (m *Matcher) Groups() int {
 // can be present and match the empty string.
 func (m *Matcher) Present(group int) bool {
 	m.mData.ensureNotFreed()
-	return m.mData.ovector[2*group] >= 0 && m.mData.ovector[2*group] != UNSET
+	if group < 0 || group > m.groups {
+		return false
+	}
+	return m.mData.ovector[2*group] != UNSET
 }
 
 // Group returns the numbered capture group of the last match (performed by
@@ -902,9 +905,12 @@ func (m *Matcher) Present(group int) bool {
 // are not present return a nil slice.
 func (m *Matcher) Group(group int) []byte {
 	m.mData.ensureNotFreed()
+	if group < 0 || group > m.groups {
+		return nil
+	}
 	start := m.mData.ovector[2*group]
 	end := m.mData.ovector[2*group+1]
-	if start >= 0 {
+	if start != UNSET {
 		if m.subjectb != nil {
 			return m.subjectb[start:end]
 		}
@@ -926,6 +932,9 @@ func (m *Matcher) Extract() [][]byte {
 	extract[0] = m.subjectb
 	for i := 1; i <= m.groups; i++ {
 		x0 := m.mData.ovector[2*i]
+		if x0 == UNSET {
+			return nil
+		}
 		x1 := m.mData.ovector[2*i+1]
 		extract[i] = m.subjectb[x0:x1]
 	}
@@ -945,6 +954,9 @@ func (m *Matcher) ExtractString() []string {
 	extract[0] = m.subjects
 	for i := 1; i <= m.groups; i++ {
 		x0 := m.mData.ovector[2*i]
+		if x0 == UNSET {
+			return nil
+		}
 		x1 := m.mData.ovector[2*i+1]
 		extract[i] = m.subjects[x0:x1]
 	}
@@ -957,10 +969,13 @@ func (m *Matcher) ExtractString() []string {
 // the whole pattern; the first actual capture group is numbered 1.
 // Capture groups which are not present return a nil slice.
 func (m *Matcher) GroupIndices(group int) []int {
+	if group < 0 || group > m.groups {
+		return nil
+	}
 	m.mData.ensureNotFreed()
 	start := m.mData.ovector[2*group]
 	end := m.mData.ovector[2*group+1]
-	if start >= 0 {
+	if start != UNSET {
 		return []int{int(start), int(end)}
 	}
 	return nil
@@ -971,10 +986,13 @@ func (m *Matcher) GroupIndices(group int) []int {
 // actual capture group is numbered 1.  Capture groups which are not
 // present return an empty string.
 func (m *Matcher) GroupString(group int) string {
+	if group < 0 || group > m.groups {
+		return ""
+	}
 	m.mData.ensureNotFreed()
 	start := m.mData.ovector[2*group]
 	end := m.mData.ovector[2*group+1]
-	if start >= 0 {
+	if start != UNSET {
 		if m.subjectb != nil {
 			return string(m.subjectb[start:end])
 		}

@@ -511,6 +511,12 @@ func pcreGroups(ptr *C.pcre2_code) (count C.PCRE2_SIZE) {
 	return
 }
 
+// Maximum lookbehind
+func pcreMaxLookbehind(ptr *C.pcre2_code) (count C.PCRE2_SIZE) {
+	C.pcre2_pattern_info(ptr, INFO_MAXLOOKBEHIND, unsafe.Pointer(&count))
+	return
+}
+
 type matchData struct {
 	md      *C.pcre2_match_data
 	ovector []C.PCRE2_SIZE
@@ -681,6 +687,13 @@ func (re *Regexp) Groups() int {
 		panic("Regexp.Groups: uninitialized")
 	}
 	return int(pcreGroups(re.ptr))
+}
+
+func (re *Regexp) MaxLookbehind() int {
+	if re.ptr == nil {
+		panic("Regex.MaxLookbehind: uninitialized")
+	}
+	return int(pcreMaxLookbehind(re.ptr))
 }
 
 // Matcher objects provide a place for storing match results.

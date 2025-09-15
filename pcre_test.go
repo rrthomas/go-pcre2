@@ -275,3 +275,10 @@ func TestReplaceAll(t *testing.T) {
 		t.Error("ReplaceAll2", result)
 	}
 }
+
+func TestInfo(t *testing.T) {
+	re := MustCompile("(?<!a)a(b)", 0)
+	if re.MaxLookbehind() != 1 {
+		t.Error("MaxLookbehind")
+	}
+}

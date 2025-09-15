@@ -1,4 +1,4 @@
-module github.com/Jemmic/go-pcre2
+module github.com/rrthomas/go-pcre2
 
 go 1.22.2
 

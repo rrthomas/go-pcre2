@@ -19,6 +19,12 @@ this package as follows to allow automatic downloading:
 
     import "github.com/Jemmic/go-pcre2"
 
+## Tests
+
+To run the tests:
+
+    go test -v pcre.go pcre_test.go
+
 ## History
 
 This is based on 
